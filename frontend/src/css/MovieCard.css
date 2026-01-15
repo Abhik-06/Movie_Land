@@ -83,22 +83,34 @@
   margin-top: 0.5rem;
 }
 
+/* Container for the text below the poster */
 .movieInfo {
-  padding: 1rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column; /* Stack title and date vertically */
+    gap: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .movieInfo h3 {
-  font-size: 1rem;
-  margin: 0;
+    margin: 0;
+    font-size: 1.1rem;
+    color: white;
+    text-align: left; 
+    
+    display: -webkit-box;
+    -webkit-line-clamp: 2; 
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+    line-height: 1.2;
 }
 
 .movieInfo p {
-  color: #999;
-  font-size: 0.9rem;
+    margin: 0;
+    color: #999;
+    font-size: 0.85rem;
+    text-align: left;
 }
 
 .user-rating {

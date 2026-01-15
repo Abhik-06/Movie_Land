@@ -1,41 +1,81 @@
-import "../css/Home.css"
+    import "../css/Home.css"
 
-import { useState } from "react"
-import MovieCard from "../components/MovieCard"
+    import { useState , useEffect } from "react"
+    import MovieCard from "../components/MovieCard"
+    import { searchMovies } from "../services/api";
+    import { getPopularMovies } from "../services/api";
 
+    function Home() {
+        const [searchQuery, setSearchQuery] = useState("");
+        const [movies, setMovies] = useState([]);
+        const [error, setError] = useState(null);
+        const [loading, setLoading] = useState(true);
 
-function Home() {
-    const [searchQuery, setSearchQuery] = useState("");
+        useEffect(() => {
+            const loadPopularMovies = async () => {
+                try {
+                    const popularMovies = await getPopularMovies();
+                    setMovies(popularMovies);
+                } catch (err) { 
+                    console.log(err);
+                    setError("Failed to load popular movies...");
 
-    const movies = [
-        { id: 1, title: "A Beautiful Mind", releaseDate: "1996" },
-        { id: 2, title: "3 idiots", releaseDate: "2002" },
-        { id: 3, title: "Malik", releaseDate: "2016" }
-    ]
+                } finally {
+                    setLoading(false);
+                }
+            }
 
-    const handleSearchBar = (e) => {
-        e.preventDefault();
-        alert(searchQuery);
+            loadPopularMovies();
+        }, []);
+
+        const handleSearchBar = async (e) => {
+            e.preventDefault();
+            if(!searchQuery.trim()){ return }
+            if(loading){ return }
+
+            setLoading(true);
+            try {
+                const searchResults = await searchMovies(searchQuery);
+                setMovies(searchResults);
+                setError(null);
+            } catch(err){
+                console.log(err);
+                setError("Failed to load the movie...");
+            } finally {
+                setLoading(false);
+            }
+
+            setSearchQuery("");
+        }
+
+        return (
+            <div className="home">
+                <form onSubmit={handleSearchBar} className="searchForm">
+                    <input
+                        type="text"
+                        placeholder="Search for movies..."
+                        className="searchInput"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <button type="submit" className="searchButton">Search</button>
+                </form>
+
+                {error && <div className="errorMessage">{error}</div>}
+                
+                {loading ? (
+                    <div className="loading">Loading...</div>
+                
+                ) : (
+                <div className="movies-grid">
+                    {movies.map((movie) => (
+                        movie.title.toLowerCase().includes(searchQuery.toLowerCase()) && <MovieCard movie={movie} key={movie.id} />
+                    ))}
+                </div>
+                )}
+            </div>
+            
+        )
     }
 
-    return (
-        <div className="home">
-            <form onClick={handleSearchBar} className="searchForm">
-                <input
-                    type="text"
-                    placeholder="Search for movies..."
-                    className="searchInput"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <button type="submit" className="searchButton">Search</button>
-            </form>
-
-            {movies.map((movie) => (
-                movie.title.toLowerCase().startsWith(searchQuery) && <MovieCard movie={movie} key={movie.id} />
-            ))}
-        </div>
-    )
-}
-
-export default Home
+    export default Home
